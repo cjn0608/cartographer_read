@@ -89,7 +89,7 @@ class OrderedMultiQueue {
   common::Time last_dispatched_time_ = common::Time::min();
 
   std::map<int, common::Time> common_start_time_per_trajectory_;
-  std::map<QueueKey, Queue> queues_;
+  std::map<QueueKey, Queue> queues_;//按照key排序的map
   QueueKey blocker_;
 };
 
