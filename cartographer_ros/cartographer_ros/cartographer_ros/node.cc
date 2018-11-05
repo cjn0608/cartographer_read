@@ -652,7 +652,7 @@ void Node::HandleImuMessage(const int trajectory_id,
   auto sensor_bridge_ptr = map_builder_bridge_.sensor_bridge(trajectory_id);
   auto imu_data_ptr = sensor_bridge_ptr->ToImuData(msg);
   if (imu_data_ptr != nullptr) {
-    extrapolators_.at(trajectory_id).AddImuData(*imu_data_ptr);
+    extrapolators_.at(trajectory_id).AddImuData(*imu_data_ptr); //计算位姿
   }
   sensor_bridge_ptr->HandleImuMessage(sensor_id, msg);
 }

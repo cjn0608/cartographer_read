@@ -144,7 +144,7 @@ void ActiveSubmaps2D::InsertRangeData(const sensor::RangeData& range_data) {
   for (auto& submap : submaps_) {
     submap->InsertRangeData(range_data, range_data_inserter_.get());
   }
-  if (submaps_.back()->num_range_data() == options_.num_range_data()) {
+  if (submaps_.back()->num_range_data() == options_.num_range_data()) { //num_range_data = 90
     AddSubmap(range_data.origin.head<2>());
   }
 }

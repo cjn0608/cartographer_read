@@ -75,7 +75,7 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
   if (filtered_gravity_aligned_point_cloud.empty()) {
     return nullptr;
   }
-  if (options_.use_online_correlative_scan_matching()) {
+  if (options_.use_online_correlative_scan_matching()) {                //相关性扫描匹配
     CHECK_EQ(options_.submaps_options().grid_options_2d().grid_type(),
              proto::GridOptions2D_GridType_PROBABILITY_GRID);
     double score = real_time_correlative_scan_matcher_.Match(
@@ -151,7 +151,7 @@ LocalTrajectoryBuilder2D::AddRangeData(     //收集传感器数据
     if (time_point < extrapolator_->GetLastExtrapolatedTime()) {
       if (!warned) {
         LOG(ERROR)
-            << "Timestamp of individual range data point jumps backwards from "
+            << "Timestamp of indsvidual range data point jumps backwards from "
             << extrapolator_->GetLastExtrapolatedTime() << " to " << time_point;
         warned = true;
       }
@@ -207,7 +207,7 @@ LocalTrajectoryBuilder2D::AddRangeData(     //收集传感器数据
 }
 
 std::unique_ptr<LocalTrajectoryBuilder2D::MatchingResult>
-LocalTrajectoryBuilder2D::AddAccumulatedRangeData(  //累计10桢激光数据
+LocalTrajectoryBuilder2D::AddAccumulatedRangeData(  //累计1桢激光数据
     const common::Time time,
     const sensor::RangeData& gravity_aligned_range_data,
     const transform::Rigid3d& gravity_alignment) {
@@ -218,7 +218,7 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(  //累计10桢激光数据
 
   // Computes a gravity aligned pose prediction.
   const transform::Rigid3d non_gravity_aligned_pose_prediction =
-      extrapolator_->ExtrapolatePose(time);
+      extrapolator_->ExtrapolatePose(time); //返回最新当前位姿预测
   const transform::Rigid2d pose_prediction = transform::Project2D(
       non_gravity_aligned_pose_prediction * gravity_alignment.inverse());
 
@@ -231,7 +231,8 @@ LocalTrajectoryBuilder2D::AddAccumulatedRangeData(  //累计10桢激光数据
   }
   const transform::Rigid3d pose_estimate =
       transform::Embed3D(*pose_estimate_2d) * gravity_alignment;
-  extrapolator_->AddPose(time, pose_estimate);
+  extrapolator_->AddPose(time, pose_estimate); //将最新扫描匹配得到的位姿加入到位姿队列当中，
+                                               //用来获取ΔT、预测机器人速度和为下一次位姿估计提供基础量。
 
   sensor::RangeData range_data_in_local =
       TransformRangeData(gravity_aligned_range_data,

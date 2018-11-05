@@ -130,7 +130,7 @@ void PoseExtrapolator::AddOdometryData(
       orientation_at_newest_odometry_time *
       linear_velocity_in_tracking_frame_at_newest_odometry_time;
 }
-
+//返回最新当前位姿
 transform::Rigid3d PoseExtrapolator::ExtrapolatePose(const common::Time time) {
   const TimedPose& newest_timed_pose = timed_pose_queue_.back();
   CHECK_GE(time, newest_timed_pose.time);
@@ -223,7 +223,7 @@ void PoseExtrapolator::AdvanceImuTracker(const common::Time time,
   }
   imu_tracker->Advance(time);
 }
-
+//delta t 位姿旋转变换
 Eigen::Quaterniond PoseExtrapolator::ExtrapolateRotation(
     const common::Time time, ImuTracker* const imu_tracker) const {
   CHECK_GE(time, imu_tracker->time());
@@ -231,7 +231,7 @@ Eigen::Quaterniond PoseExtrapolator::ExtrapolateRotation(
   const Eigen::Quaterniond last_orientation = imu_tracker_->orientation();
   return last_orientation.inverse() * imu_tracker->orientation();
 }
-
+//delta t 位姿平移变换
 Eigen::Vector3d PoseExtrapolator::ExtrapolateTranslation(common::Time time) {
   const TimedPose& newest_timed_pose = timed_pose_queue_.back();
   const double extrapolation_delta =

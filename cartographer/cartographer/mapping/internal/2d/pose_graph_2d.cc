@@ -126,9 +126,9 @@ NodeId PoseGraph2D::AddNode( //***
 
   // We have to check this here, because it might have changed by the time we
   // execute the lambda.
-  const bool newly_finished_submap = insertion_submaps.front()->finished();
+  const bool newly_finished_submap = insertion_submaps.front()->finished();  //检查最早的子图是否建立完成
   AddWorkItem([=]() REQUIRES(mutex_) {
-    ComputeConstraintsForNode(node_id, insertion_submaps, //***
+    ComputeConstraintsForNode(node_id, insertion_submaps, //***work_queue_
                               newly_finished_submap);
   });
   return node_id;
@@ -237,11 +237,11 @@ void PoseGraph2D::ComputeConstraintsForNode(
     std::vector<std::shared_ptr<const Submap2D>> insertion_submaps,
     const bool newly_finished_submap) {
   const auto& constant_data = trajectory_nodes_.at(node_id).constant_data;
-  const std::vector<SubmapId> submap_ids = InitializeGlobalSubmapPoses(
+  const std::vector<SubmapId> submap_ids = InitializeGlobalSubmapPoses( //返回insertion_submaps 里submap的id,里面一共有2个submap
       node_id.trajectory_id, constant_data->time, insertion_submaps);
   CHECK_EQ(submap_ids.size(), insertion_submaps.size());
   const SubmapId matching_id = submap_ids.front();
-  const transform::Rigid2d local_pose_2d = transform::Project2D(
+  const transform::Rigid2d local_pose_2d = transform::Project2D(//激光数据局部位姿
       constant_data->local_pose *
       transform::Rigid3d::Rotation(constant_data->gravity_alignment.inverse()));
   const transform::Rigid2d global_pose_2d =
@@ -267,13 +267,13 @@ void PoseGraph2D::ComputeConstraintsForNode(
                                       {transform::Embed3D(constraint_transform),
                                        options_.matcher_translation_weight(),
                                        options_.matcher_rotation_weight()},
-                                      Constraint::INTRA_SUBMAP});
+                                      Constraint::INTRA_SUBMAP});  //Constraint for current submap
   }
 
   for (const auto& submap_id_data : submap_data_) {
     if (submap_id_data.data.state == SubmapState::kFinished) {
       CHECK_EQ(submap_id_data.data.node_ids.count(node_id), 0);
-      ComputeConstraint(node_id, submap_id_data.id);
+      ComputeConstraint(node_id, submap_id_data.id);//计算约束
     }
   }
 
@@ -580,6 +580,8 @@ void PoseGraph2D::RunOptimization() {
   // frozen_trajectories_ and landmark_nodes_ when executing the Solve. Solve is
   // time consuming, so not taking the mutex before Solve to avoid blocking
   // foreground processing.
+  //执行Solve时，没有其他线程正在访问optimization_problem_，constraints_，frozen_trajectories_和landmark_nodes_。
+  //Solve是耗时的，因此在Solve之前不要使用互斥锁来避免阻塞前台处理。
   optimization_problem_->Solve(constraints_, frozen_trajectories_,
                                landmark_nodes_);
   common::MutexLocker locker(&mutex_);

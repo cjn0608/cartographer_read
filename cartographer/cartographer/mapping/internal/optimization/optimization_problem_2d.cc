@@ -236,7 +236,7 @@ void OptimizationProblem2D::Solve(
   }
   // Add cost functions for intra- and inter-submap constraints.
   for (const Constraint& constraint : constraints) {
-    problem.AddResidualBlock(
+    problem.AddResidualBlock(//残差块
         CreateAutoDiffSpaCostFunction(constraint.pose),
         // Only loop closure constraints should have a loss function.
         constraint.tag == Constraint::INTER_SUBMAP
