@@ -56,7 +56,7 @@ LocalTrajectoryBuilder2D::TransformToGravityAlignedFrameAndFilter(
                             options_.min_z(), options_.max_z());
   return sensor::RangeData{
       cropped.origin,
-      sensor::VoxelFilter(options_.voxel_filter_size()).Filter(cropped.returns),
+      sensor::VoxelFilter(options_.voxel_filter_size()).Filter(cropped.returns),//体素滤波
       sensor::VoxelFilter(options_.voxel_filter_size()).Filter(cropped.misses)};
 }
 
@@ -158,7 +158,7 @@ LocalTrajectoryBuilder2D::AddRangeData(     //收集传感器数据
       time_point = extrapolator_->GetLastExtrapolatedTime();
     }
     range_data_poses.push_back(
-        extrapolator_->ExtrapolatePose(time_point).cast<float>());
+        extrapolator_->ExtrapolatePose(time_point).cast<float>()); //得到激光数据位姿
   }
 
   if (num_accumulated_ == 0) {

@@ -59,7 +59,7 @@ void OrderedMultiQueue::MarkQueueAsFinished(const QueueKey& queue_key) {
   queue.finished = true;
   Dispatch();
 }
-
+//根据key找到队列,并添加data元素
 void OrderedMultiQueue::Add(const QueueKey& queue_key,
                             std::unique_ptr<Data> data) {
   auto it = queues_.find(queue_key); //每个传感器数据都加入队列
